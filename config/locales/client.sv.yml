@@ -7,12 +7,15 @@
 sv:
   admin_js:
     admin:
+      calendar: "Kalender"
       site_settings:
         categories:
           discourse_post_event: "Discourse-evenemang"
           discourse_calendar: "Discourse-kalender"
   js:
     notifications:
+      titles:
+        event_reminder: "händelsepåminnelse"
       popup:
         event_reminder: Händelsepåminnelse
     discourse_automation:
@@ -25,7 +28,14 @@ sv:
     discourse_calendar:
       invite_user_notification: "%{username} har bjudit in dig till: %{description}"
       on_holiday: "På semester"
+      disable_holiday: "Inaktivera"
+      enable_holiday: "Aktivera"
       holiday: "Semester"
+      holidays:
+        header_title: "Helgdagar"
+        pick_region_description: "Välj en region för att se helgdagarna för den regionen."
+        disabled_holidays_description: "Inaktiverade helgdagar kommer att exkluderas från personalens helgdagskalender."
+      date: "Datum"
       add_to_calendar: "Lägg till i Google Kalender"
       region:
         title: "Region"
@@ -53,6 +63,8 @@ sv:
           bg_bg: "Bulgarien (bg_bg)"
           bg_en: "Bulgarien (bg_en)"
           br: "Brasilien"
+          br_sp: "Brasilien (br_sp)"
+          br_spcapital: "Brasilien (br_spcapital)"
           ca_ab: "Kanada (ca_ab)"
           ca_bc: "Kanada (ca_bc)"
           ca_mb: "Kanada (ca_mb)"
@@ -157,6 +169,7 @@ sv:
           gb: "Storbritannien"
           ge: "Georgien"
           gg: "Guernsey"
+          gh: "Ghana"
           hk: "Hongkong"
           hr: "Kroatien"
           hu: "Ungern"
@@ -179,6 +192,7 @@ sv:
           je: "Jersey"
           jp: "Japan"
           kr: "Korea (Republiken)"
+          kz: "Kazakstan (Republiken Kazakstan)"
           li: "Liechtenstein"
           lt: "Litauen"
           lu: "Luxemburg"
@@ -225,8 +239,6 @@ sv:
           tn: "Tunisien"
           tr: "Turkiet"
           ua: "Ukraina"
-          unitednations: " (Förenta nationerna)"
-          ups: " (ups)"
           us_ak: "USA (us_ak)"
           us_al: "USA (us_al)"
           us_ar: "USA (us_ar)"
@@ -285,61 +297,43 @@ sv:
           ve: "Venezuela"
           vi: "Jungfruöarna (USA)"
           za: "Sydafrika"
+      toolbar_button:
+        today: "Idag"
+        month: "Månad"
+        week: "Vecka"
+        day: "Dag"
     group_timezones:
       search: "Sök..."
       group_availability: "%{group}-tillgänglighet"
     discourse_post_event:
       notifications:
         invite_user_notification: "%{username} %{description}"
-        invite_user_predefined_attendance_notification: "%{username} har automatiskt ställt in din närvaro och bjudit in dig till %{description}"
-        before_event_reminder: "Ett evenemang börjar snart %{description}"
-        after_event_reminder: "Ett evenemang har avslutats %{description}"
-        ongoing_event_reminder: "Ett evenemang pågår %{description}"
-      preview:
-        more_than_one_event: "Du kan inte ha mer än ett evenemang."
+        invite_user_predefined_attendance_notification_html: "%{username} har automatiskt ställt in din närvaro och bjudit in dig till %{description}"
+        before_event_reminder_html: "Ett evenemang börjar snart %{description}"
+        after_event_reminder_html: "Ett evenemang har avslutats %{description}"
+        ongoing_event_reminder_html: "Ett evenemang pågår %{description}"
       edit_reason: "Evenemang uppdaterat"
       topic_title:
         starts_at: "Evenemanget börjar: %{date}"
         ended_at: "Evenemanget slutade: %{date}"
         ends_in_duration: "Slutar %{duration}"
-      models:
-        invitee:
-          no_users: "Det finns inga användare av den här typen."
-          status:
-            unknown: "Inte intresserad"
-            going: "Kommer"
-            not_going: "Kommer inte"
-            interested: "Intresserad"
-        event:
-          expired: "Förfallen"
-          status:
-            standalone:
-              title: "Fristående"
-              description: "Ett fristående evenemang kan inte anslutas."
-            public:
-              title: "Offentligt"
-              description: "Ett offentligt evenemang kan besökas av vem som helst."
-            private:
-              title: "Privat"
-              description: "Endast inbjudna användare kan besöka ett privat evenemang."
-      event_ui:
-        show_all: "Visa alla"
-        participants:
-          one: "%{count} användare deltog."
-          other: "%{count} användare deltog."
-        invite: "Meddela användare"
-        add_to_calendar: "Lägg till i kalendern"
-        send_pm_to_creator: "Skicka PM till %{username}"
-        edit_event: "Redigera evenemang"
-        export_event: "Exportera evenemang"
-        created_by: "Skapat av"
-        bulk_invite: "Massinbjudan"
-        close_event: "Stäng evenemang"
+      show_all: "Visa alla"
+      participants:
+        one: "%{count} användare deltog."
+        other: "%{count} användare deltog."
+      invite: "Meddela användare"
+      add_to_calendar: "Lägg till i kalender"
+      send_pm_to_creator: "Skicka PM till %{username}"
+      edit_event: "Redigera evenemang"
+      export_event: "Exportera evenemang"
+      created_by: "Skapat av"
+      bulk_invite: "Massinbjudan"
+      close_event: "Stäng evenemang"
       invitees_modal:
-        title_invited: "Lista över användare som bekräftat att de kommer"
         title_participated: "Lista över användare som deltog"
         filter_placeholder: "Filtrera användare"
       bulk_invite_modal:
+        confirm: "bekräfta"
         text: "Ladda upp CSV-fil"
         title: "Massinbjudan"
         success: "Filen laddades upp och du underrättas via meddelande när processen är klar"
@@ -353,6 +347,35 @@ sv:
         user_selector_placeholder: "Välj användare ..."
         inline_title: "Inbäddad massinbjudan"
         csv_title: "CSV-massinbjudan"
+      upcoming_events:
+        title: "Kommande evenemang"
+        creator: "Skapare"
+        status: "Status"
+        starts_at: "Börjar"
+      upcoming_events_list:
+        title: "Kommande evenemang"
+      preview:
+        more_than_one_event: "Du kan inte ha mer än ett evenemang."
+      models:
+        invitee:
+          status:
+            unknown: "Inte intresserad"
+            going: "Kommer"
+            not_going: "Kommer inte"
+            interested: "Intresserad"
+        event:
+          expired: "Förfallen"
+          closed: "Stängd"
+          status:
+            standalone:
+              title: "Fristående"
+              description: "Ett fristående evenemang kan inte anslutas."
+            public:
+              title: "Offentligt"
+              description: "Ett offentligt evenemang kan besökas av vem som helst."
+            private:
+              title: "Privat"
+              description: "Endast inbjudna användare kan besöka ett privat evenemang."
       builder_modal:
         custom_fields:
           label: "Anpassade fält"
@@ -366,8 +389,18 @@ sv:
         update: "Spara"
         attach: "Skapa händelse"
         add_reminder: "Lägg till påminnelse"
+        timezone:
+          label: Tidszon
+          remove_timezone: Ingen tidszon (UTC)
         reminders:
           label: "Påminnelser"
+          units:
+            minutes: "minuter"
+            hours: "timmar"
+            days: "dagar"
+          periods:
+            before: "innan"
+            after: "efter"
         recurrence:
           label: "Upprepning"
           none: "Ingen upprepning"
@@ -389,8 +422,3 @@ sv:
       invite_user_or_group:
         title: "Meddela användare eller grupp(er)"
         invite: "Skicka"
-      upcoming_events:
-        title: "Kommande evenemang"
-        creator: "Skapare"
-        status: "Status"
-        starts_at: "Börjar"

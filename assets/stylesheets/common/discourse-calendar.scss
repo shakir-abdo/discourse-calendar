@@ -4,7 +4,6 @@
 }
 
 .category-calendar .calendar {
-  height: 400px;
   overflow-y: scroll;
 }
 
@@ -12,7 +11,7 @@
   display: table-caption;
 }
 
-.calendar {
+.calendar.fc {
   height: 645px; // Must be fixed to prevent height change on load
   border: 0;
 
@@ -35,7 +34,7 @@
     overflow: hidden;
 
     .fc-scroller {
-      height: 570px !important;
+      height: 575px !important;
       padding-bottom: 5px;
     }
 
@@ -63,12 +62,12 @@
     }
 
     .fc-title {
-      // TODO: use @include ellipsis after stable is 2.4+
-      overflow: hidden;
-      white-space: nowrap;
-      text-overflow: ellipsis;
-
+      @include ellipsis;
       display: block;
+    }
+
+    .fc-event-container {
+      padding: 3px;
     }
 
     .fc-widget-header span {
@@ -155,13 +154,8 @@
   }
   .fc-list-item-add-to-calendar {
     color: var(--tertiary);
-    font-size: $font-down-1;
+    font-size: var(--font-down-1);
   }
-}
-
-.mention .d-icon {
-  margin-left: 0.3em;
-  vertical-align: baseline;
 }
 
 a.holiday {
@@ -203,10 +197,9 @@ a.holiday {
 }
 
 .group-timezones {
-  display: flex;
+  display: grid;
   width: 100%;
   box-sizing: border-box;
-  flex-direction: column;
 
   &[data-size="auto"],
   &.auto {
@@ -317,7 +310,7 @@ a.holiday {
     align-items: center;
     justify-content: space-between;
     color: inherit;
-    font-size: $font-down-1;
+    font-size: var(--font-down-1);
 
     .before {
       margin-right: auto;
@@ -368,7 +361,7 @@ a.holiday {
       }
 
       .offset {
-        font-size: $font-down-2;
+        font-size: var(--font-down-2);
         margin-left: 0.5em;
       }
     }
@@ -378,13 +371,21 @@ a.holiday {
       margin: 0.1em 0;
 
       .group-timezones-member {
-        &.on-holiday {
-          opacity: 0.4;
-        }
-
         margin: 0.1em;
         list-style: none;
         display: inline-block;
+
+        &.on-holiday {
+          opacity: 0.7;
+          position: relative;
+        }
+        &.on-holiday::after {
+          content: "📅";
+          position: absolute;
+          bottom: -0.15em;
+          left: 1em;
+          font-size: var(--font-down-2);
+        }
       }
     }
   }
@@ -398,4 +399,37 @@ a.holiday {
 .group-timezones-filter[type="text"] {
   margin: 0;
   width: 120px;
+}
+
+.emoji.on-holiday {
+  width: 15px;
+  height: 15px;
+}
+
+#event-popover {
+  background-color: var(--tertiary-very-low);
+  z-index: z("modal", "tooltip");
+  box-shadow: var(--shadow-dropdown);
+  border-radius: 4px;
+  padding: 0.5em;
+  max-width: unquote("min(75vw, 400px)");
+
+  [data-popper-arrow],
+  [data-popper-arrow]::before {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background: inherit;
+    top: -2px;
+  }
+
+  [data-popper-arrow] {
+    visibility: hidden;
+  }
+
+  [data-popper-arrow]::before {
+    visibility: visible;
+    content: "";
+    transform: rotate(45deg);
+  }
 }
