@@ -7,34 +7,50 @@ module DiscoursePostEvent
       topics = listable_topics(guardian)
       pms = private_messages(user)
 
-      events = DiscoursePostEvent::Event
-        .select("discourse_post_event_events.*, dcped.starts_at")
-        .joins(post: :topic)
-        .merge(Post.secured(guardian))
-        .merge(topics.or(pms).distinct)
-        .joins("LEFT JOIN discourse_calendar_post_event_dates dcped ON dcped.event_id = discourse_post_event_events.id")
-        .order("dcped.starts_at ASC")
+      dates_join = <<~SQL
+      LEFT JOIN (
+        SELECT
+          finished_at,
+          event_id,
+          starts_at,
+          ROW_NUMBER() OVER (PARTITION BY event_id ORDER BY finished_at DESC NULLS FIRST) as row_num
+        FROM discourse_calendar_post_event_dates
+      ) dcped ON dcped.event_id = discourse_post_event_events.id AND dcped.row_num = 1
 
-      if params[:expired]
-        # The second part below makes the query ignore events that have non-expired event-dates
-        events = events
-          .where("dcped.finished_at IS NOT NULL AND (dcped.ends_at IS NOT NULL AND dcped.ends_at < ?)", Time.now)
-          .where("discourse_post_event_events.id NOT IN (SELECT DISTINCT event_id FROM discourse_calendar_post_event_dates WHERE event_id = discourse_post_event_events.id AND finished_at IS NULL)")
-      else
-        events = events.where("dcped.finished_at IS NULL AND (dcped.ends_at IS NULL OR dcped.ends_at > ?)", Time.now)
-      end
+      SQL
+      events =
+        DiscoursePostEvent::Event
+          .select("discourse_post_event_events.*, dcped.starts_at")
+          .joins(post: :topic)
+          .merge(Post.secured(guardian))
+          .merge(topics.or(pms).distinct)
+          .joins(dates_join)
+          .order("dcped.starts_at ASC")
 
-      if params[:post_id]
-        events = events.where(id: Array(params[:post_id]))
+      include_expired = params[:include_expired].to_s == "true"
+
+      events = events.where("dcped.finished_at IS NULL") unless include_expired
+
+      events = events.where(id: Array(params[:post_id])) if params[:post_id]
+
+      if params[:before].present?
+        events = events.where("dcped.starts_at < ?", params[:before].to_datetime)
       end
 
       if params[:category_id].present?
         if params[:include_subcategories].present?
-          events = events.where(topics: { category_id: Category.subcategory_ids(params[:category_id].to_i) })
+          events =
+            events.where(
+              topics: {
+                category_id: Category.subcategory_ids(params[:category_id].to_i),
+              },
+            )
         else
           events = events.where(topics: { category_id: params[:category_id].to_i })
         end
       end
+
+      events = events.limit(params[:limit].to_i) if params[:limit].present?
 
       events
     end

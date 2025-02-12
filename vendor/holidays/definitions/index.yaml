@@ -1,6 +1,7 @@
 # Definition build list
 ---
 defs:
+  AE: ['ae.yaml']
   AR: ['ar.yaml']
   AT: ['at.yaml']
   AU: ['au.yaml']
@@ -27,9 +28,11 @@ defs:
   FR: ['fr.yaml']
   GB: ['gb.yaml']
   GE: ['ge.yaml']
+  GH: ['gh.yaml']
   HR: ['hr.yaml']
   HK: ['hk.yaml']
   HU: ['hu.yaml']
+  ID: ['id.yaml']
   IE: ['ie.yaml']
   IN: ['in.yaml']
   IS: ['is.yaml']
@@ -79,3 +82,4 @@ defs:
   MY: ['my.yaml']
   TH: ['th.yaml']
   NG: ['ng.yaml']
+  KE: ['ke.yaml']

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'rails_helper'
+require "rails_helper"
 
 describe CalendarEvent do
   let(:calendar_post) { create_post(raw: "[calendar]\n[/calendar]") }
@@ -46,7 +46,8 @@ describe CalendarEvent do
   end
 
   it "works with timezone" do
-    raw = %{Rome [date="2018-06-05" timezone="Europe/Paris"] [date="2018-06-11" time="13:45:33" timezone="America/Los_Angeles"]}
+    raw =
+      %{Rome [date="2018-06-05" timezone="Europe/Paris"] [date="2018-06-11" time="13:45:33" timezone="America/Los_Angeles"]}
     post = create_post(raw: raw, topic: calendar_post.topic)
 
     calendar_event = CalendarEvent.find_by(post_id: post.id)
@@ -57,7 +58,8 @@ describe CalendarEvent do
   it "validates a post with more than two dates if not a calendar" do
     calendar_post = create_post(raw: "This is a tets of a topic")
 
-    raw = %{Rome [date="2018-06-05" timezone="Europe/Paris"] [date="2018-06-11" time="13:45:33" timezone="America/Los_Angeles"] [date="2018-06-05" timezone="Europe/Paris"]}
+    raw =
+      %{Rome [date="2018-06-05" timezone="Europe/Paris"] [date="2018-06-11" time="13:45:33" timezone="America/Los_Angeles"] [date="2018-06-05" timezone="Europe/Paris"]}
     post = create_post(raw: raw, topic: calendar_post.topic)
 
     expect(post).to be_valid
@@ -101,7 +103,8 @@ describe CalendarEvent do
     end
 
     it "works with timezone" do
-      raw = %{Rome [date="2018-06-05" timezone="Europe/Paris"] [date="2018-06-11" time="13:45:33" timezone="America/Los_Angeles"]}
+      raw =
+        %{Rome [date="2018-06-05" timezone="Europe/Paris"] [date="2018-06-11" time="13:45:33" timezone="America/Los_Angeles"]}
       post = create_post(raw: raw, topic: calendar_post.topic)
 
       event = CalendarEvent.find_by(post_id: post.id)
@@ -116,7 +119,8 @@ describe CalendarEvent do
     it "includes calendar details" do
       calendar_post = create_post(raw: "[calendar]\n[/calendar]")
 
-      post = create_post(topic: calendar_post.topic, raw: 'Rome [date="2018-06-05" time="10:20:00"]')
+      post =
+        create_post(topic: calendar_post.topic, raw: 'Rome [date="2018-06-05" time="10:20:00"]')
       calendar_post.reload
 
       json = PostSerializer.new(calendar_post, scope: Guardian.new).as_json
@@ -125,10 +129,13 @@ describe CalendarEvent do
     end
 
     it "includes group timezones detail" do
-      Fabricate(:admin)
-      Group.refresh_automatic_groups!(:admins)
+      Fabricate(:admin, refresh_auto_groups: true)
 
-      timezones_post = create_post(raw: "[timezones group=\"admins\"]\n[/timezones]\n\n[timezones group=\"trust_level_0\"]\n[/timezones]")
+      timezones_post =
+        create_post(
+          raw:
+            "[timezones group=\"admins\"]\n[/timezones]\n\n[timezones group=\"trust_level_0\"]\n[/timezones]",
+        )
       timezones_post.reload
 
       json = PostSerializer.new(timezones_post, scope: Guardian.new).as_json
@@ -148,6 +155,27 @@ describe CalendarEvent do
       PostDestroyer.new(Discourse.system_user, post).destroy
 
       expect(CalendarEvent.find_by(post_id: post.id)).to_not be_present
+    end
+
+    it "works for events belonging to deleted users" do
+      SiteSetting.enable_user_status = true
+
+      topic = Fabricate(:topic)
+      user = Fabricate(:user)
+
+      # Holiday events are not associated with a user post
+      event =
+        CalendarEvent.create!(
+          topic_id: topic.id,
+          user_id: user.id,
+          start_date: Time.zone.now - 1.day,
+          end_date: Time.zone.now + 1.day,
+        )
+
+      UserDestroyer.new(Discourse.system_user).destroy(user)
+
+      expect { event.destroy! }.not_to raise_error
+      expect { event.reload }.to raise_error(ActiveRecord::RecordNotFound)
     end
   end
 end

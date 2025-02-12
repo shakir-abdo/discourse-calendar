@@ -2,12 +2,17 @@
 
 module DiscoursePostEvent
   class EventDate < ActiveRecord::Base
-    self.table_name = 'discourse_calendar_post_event_dates'
+    self.table_name = "discourse_calendar_post_event_dates"
     belongs_to :event
 
-    scope :pending, -> { where(finished_at: nil) }
-    scope :expired, -> { where('ends_at IS NOT NULL AND ends_at < ?', Time.now) }
-    scope :not_expired, -> { where('ends_at IS NULL OR ends_at > ?', Time.now) }
+    scope :pending,
+          -> do
+            where(finished_at: nil).joins(:event).where(
+              "discourse_post_event_events.deleted_at is NULL",
+            )
+          end
+    scope :expired, -> { where("ends_at IS NOT NULL AND ends_at < ?", Time.now) }
+    scope :not_expired, -> { where("ends_at IS NULL OR ends_at > ?", Time.now) }
 
     after_commit :upsert_topic_custom_field, on: %i[create]
     def upsert_topic_custom_field
@@ -18,9 +23,9 @@ module DiscoursePostEvent
             name: TOPIC_POST_EVENT_STARTS_AT,
             value: self.starts_at,
             created_at: Time.now,
-            updated_at: Time.now
+            updated_at: Time.now,
           },
-          unique_by: 'idx_topic_custom_fields_topic_post_event_starts_at'
+          unique_by: "idx_topic_custom_fields_topic_post_event_starts_at",
         )
 
         TopicCustomField.upsert(
@@ -29,16 +34,11 @@ module DiscoursePostEvent
             name: TOPIC_POST_EVENT_ENDS_AT,
             value: self.ends_at,
             created_at: Time.now,
-            updated_at: Time.now
+            updated_at: Time.now,
           },
-          unique_by: 'idx_topic_custom_fields_topic_post_event_ends_at'
+          unique_by: "idx_topic_custom_fields_topic_post_event_ends_at",
         )
       end
-    end
-
-    after_commit :reset_invitees_status, on: %i[create]
-    def reset_invitees_status
-      self.event.invitees.update_all(status: nil)
     end
 
     def started?
@@ -46,8 +46,7 @@ module DiscoursePostEvent
     end
 
     def ended?
-      return false if ends_at.nil?
-      ends_at <= Time.current
+      (ends_at || starts_at.end_of_day) <= Time.current
     end
   end
 end

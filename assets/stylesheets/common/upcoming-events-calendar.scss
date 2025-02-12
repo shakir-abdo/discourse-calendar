@@ -1,4 +1,5 @@
-#upcoming-events-calendar {
+#upcoming-events-calendar,
+#category-events-calendar {
   &.fc-unthemed {
     tbody,
     thead,
@@ -30,11 +31,7 @@
     }
 
     .fc-title {
-      // TODO: use @include ellipsis after stable is 2.4+
-      overflow: hidden;
-      white-space: nowrap;
-      text-overflow: ellipsis;
-
+      @include ellipsis;
       display: block;
     }
 
@@ -66,6 +63,7 @@
         background: var(--tertiary);
         color: var(--secondary);
       }
+
       margin: 0.3em 0 0.3em 0.5em;
     }
 
@@ -120,13 +118,18 @@
     }
   }
 
+  .fc-past-event {
+    opacity: 0.3;
+  }
+
   .fc-left {
     .fc-button-group:first-child {
       margin-left: 0;
     }
   }
+
   .fc-list-item-add-to-calendar {
     color: var(--tertiary);
-    font-size: $font-down-1;
+    font-size: var(--font-down-1);
   }
 }

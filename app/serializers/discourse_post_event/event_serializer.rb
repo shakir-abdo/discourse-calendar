@@ -2,40 +2,49 @@
 
 module DiscoursePostEvent
   class EventSerializer < ApplicationSerializer
-    attributes :id
-    attributes :creator
-    attributes :sample_invitees
-    attributes :watching_invitee
-    attributes :starts_at
-    attributes :ends_at
-    attributes :stats
-    attributes :status
-    attributes :raw_invitees
-    attributes :post
-    attributes :name
     attributes :can_act_on_discourse_post_event
     attributes :can_update_attendance
+    attributes :category_id
+    attributes :creator
+    attributes :custom_fields
+    attributes :ends_at
+    attributes :id
+    attributes :is_closed
     attributes :is_expired
     attributes :is_ongoing
-    attributes :should_display_invitees
-    attributes :url
-    attributes :custom_fields
-    attributes :is_public
     attributes :is_private
+    attributes :is_public
     attributes :is_standalone
-    attributes :reminders
+    attributes :minimal
+    attributes :name
+    attributes :post
+    attributes :raw_invitees
     attributes :recurrence
+    attributes :recurrence_rule
+    attributes :reminders
+    attributes :sample_invitees
+    attributes :should_display_invitees
+    attributes :starts_at
+    attributes :stats
+    attributes :status
+    attributes :timezone
+    attributes :url
+    attributes :watching_invitee
 
     def can_act_on_discourse_post_event
       scope.can_act_on_discourse_post_event?(object)
     end
 
     def reminders
-      (object.reminders || '').split(',').map do |reminder|
-        value, unit = reminder.split('.')
-        value = value.to_i
-        { value: value.to_i.abs, unit: unit, period: value > 0 ? 'before' : 'after' }
-      end
+      (object.reminders || "")
+        .split(",")
+        .map do |reminder|
+          unit, value, type = reminder.split(".").reverse
+          type ||= "notification"
+
+          value = value.to_i
+          { value: value.to_i.abs, unit: unit, period: value > 0 ? "before" : "after", type: type }
+        end
     end
 
     def is_expired
@@ -47,15 +56,19 @@ module DiscoursePostEvent
     end
 
     def is_public
-      object.status === Event.statuses[:public]
+      object.public?
     end
 
     def is_private
-      object.status === Event.statuses[:private]
+      object.private?
     end
 
     def is_standalone
-      object.status === Event.statuses[:standalone]
+      object.standalone?
+    end
+
+    def is_closed
+      object.closed
     end
 
     def status
@@ -71,8 +84,8 @@ module DiscoursePostEvent
         url: object.post.url,
         topic: {
           id: object.post.topic.id,
-          title: object.post.topic.title
-        }
+          title: object.post.topic.title,
+        },
       }
     end
 
@@ -85,39 +98,15 @@ module DiscoursePostEvent
     end
 
     def stats
-      counts = object.invitees.group(:status).count
-
-      # event creator is always going so we add one
-      going = counts[Invitee.statuses[:going]] || 0
-      interested = counts[Invitee.statuses[:interested]] || 0
-      not_going = counts[Invitee.statuses[:not_going]] || 0
-      unanswered = counts[nil] || 0
-
-      # when a group is private we know the list of possible users
-      # even if an invitee has not been created yet
-      if object.private?
-        unanswered += object.missing_users.count
-      end
-
-      {
-        going: going,
-        interested: interested,
-        not_going: not_going,
-        invited: going + interested + not_going + unanswered
-      }
+      EventStatsSerializer.new(object, root: false).as_json
     end
 
     def watching_invitee
       if scope.current_user
-        watching_invitee = Invitee.find_by(
-          user_id: scope.current_user.id,
-          post_id: object.id
-        )
+        watching_invitee = Invitee.find_by(user_id: scope.current_user.id, post_id: object.id)
       end
 
-      if watching_invitee
-        InviteeSerializer.new(watching_invitee, root: false)
-      end
+      InviteeSerializer.new(watching_invitee, root: false) if watching_invitee
     end
 
     def sample_invitees
@@ -126,7 +115,21 @@ module DiscoursePostEvent
     end
 
     def should_display_invitees
-      (object.public? && object.invitees.count > 0) || (object.private? && object.raw_invitees.count > 0)
+      (object.public? && object.invitees.count > 0) ||
+        (object.private? && object.raw_invitees.count > 0)
+    end
+
+    def category_id
+      object.post.topic.category_id
+    end
+
+    def include_recurrence_rule?
+      object.recurring?
+    end
+
+    def recurrence_rule
+      localized_start ||= self.starts_at.in_time_zone(self.timezone)
+      RRuleConfigurator.rule(object.recurrence, localized_start)
     end
   end
 end

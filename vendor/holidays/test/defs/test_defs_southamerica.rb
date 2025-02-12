@@ -37,7 +37,7 @@ class SouthamericaDefinitionTests < Test::Unit::TestCase  # :nodoc:
 
     assert_equal "Día de la Independencia", (Holidays.on(Date.civil(2016, 7, 9), [:ar], [:informal])[0] || {})[:name]
 
-    assert_equal "Paso a la Inmortalidad del General José de San Martín", (Holidays.on(Date.civil(2016, 8, 15), [:ar], [:informal])[0] || {})[:name]
+    assert_equal "Paso a la Inmortalidad del General José de San Martín", (Holidays.on(Date.civil(2016, 8, 17), [:ar], [:informal])[0] || {})[:name]
 
     assert_equal "Día del Respeto a la Diversidad Cultural", (Holidays.on(Date.civil(2016, 10, 12), [:ar], [:informal])[0] || {})[:name]
 
@@ -51,13 +51,13 @@ class SouthamericaDefinitionTests < Test::Unit::TestCase  # :nodoc:
 
     assert_equal "Dia da Confraternização Universal", (Holidays.on(Date.civil(2008, 1, 1), [:br], [:informal])[0] || {})[:name]
 
-    assert_equal "Carnaval", (Holidays.on(Date.civil(2005, 2, 8), [:br], [:informal])[0] || {})[:name]
+    assert_equal "Terça-Feira de Carnaval", (Holidays.on(Date.civil(2005, 2, 8), [:br], [:informal])[0] || {})[:name]
 
-    assert_equal "Carnaval", (Holidays.on(Date.civil(2006, 2, 28), [:br], [:informal])[0] || {})[:name]
+    assert_equal "Terça-Feira de Carnaval", (Holidays.on(Date.civil(2006, 2, 28), [:br], [:informal])[0] || {})[:name]
 
-    assert_equal "Carnaval", (Holidays.on(Date.civil(2007, 2, 20), [:br], [:informal])[0] || {})[:name]
+    assert_equal "Terça-Feira de Carnaval", (Holidays.on(Date.civil(2007, 2, 20), [:br], [:informal])[0] || {})[:name]
 
-    assert_equal "Carnaval", (Holidays.on(Date.civil(2008, 2, 5), [:br], [:informal])[0] || {})[:name]
+    assert_equal "Terça-Feira de Carnaval", (Holidays.on(Date.civil(2008, 2, 5), [:br], [:informal])[0] || {})[:name]
 
     assert_equal "Sexta-feira Santa", (Holidays.on(Date.civil(2008, 3, 21), [:br], [:informal])[0] || {})[:name]
 
